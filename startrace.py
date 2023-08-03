@@ -32,34 +32,26 @@ def lighten_blend(images):
 
     # return Image.fromarray(np.uint8(result))
 
+    script_dir = os.path.dirname(os.path.abspath(__file__))
 
-    try:
-        with Image(filename=images[0]) as result:
-            for img_path in images[1:]:
-                with Image(filename=img_path) as img:
-                    result.composite(img, operator='lighten')
-
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        save_path = os.path.join(script_dir, "merged_image.png")
-
-        result.save(filename=save_path)
-        print(f"Merged image saved successfully in '{save_path}'.")
-
-    except Exception as e:
-        print("Error:", e)
+    with Image(filename=images[0]) as result:
+        result_clone = result.clone()
+        i = 0
+        for img_path in images[1:]:
+            with Image(filename=img_path) as img:
+                result_clone.composite(img, operator='lighten')
+            result_clone.save(filename=os.path.join(script_dir, f"{i}.png"))
+            i += 1
 
 
 def select_images():
     root = tk.Tk()
     root.withdraw()  
 
-    image_paths = filedialog.askopenfilenames(
+    return filedialog.askopenfilenames(
         title="Select Images",
         filetypes=[("Image Files", "*.tif")],
     )
-
-    root.destroy()
-    return image_paths
 
 
 if __name__ == "__main__":
@@ -69,7 +61,13 @@ if __name__ == "__main__":
         if not image_paths:
             raise ValueError("No image selected or the file dialog was closed.")
 
-        # merged_image = lighten_blend(image_paths)
+        lighten_blend(image_paths)
+
+        # script_dir = os.path.dirname(os.path.abspath(__file__))
+        # save_path = os.path.join(script_dir, "merged_image.png")
+
+        # lighten_blend(image_paths).save(filename=save_path)
+        # print(f"Merged image saved successfully in '{save_path}'.")
 
         
 
