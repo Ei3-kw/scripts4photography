@@ -86,7 +86,7 @@ def stack_imgs(fgs, bgs, x1, x2, y1, y2):
         result = Image(filename=fgs[i])
         result.composite(img, operator='lighten')
 
-        result.save(filename=os.path.join(script_dir, f"{i}.png"))
+    result.save(filename=os.path.join(script_dir, f"{i}.png"))
 
     
 if __name__ == "__main__":
