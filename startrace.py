@@ -22,7 +22,7 @@ def select_images(prompt="Select Images"):
     )
 
 
-def lighten_blend(images):
+def lighten_blend(images, timelapse=1):
     if len(images) == 0:
         raise ValueError("At least one image must be provided.")
 
@@ -46,14 +46,23 @@ def lighten_blend(images):
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
-    with Image(filename=images[0]) as result:
-        result_clone = result.clone()
-        i = 0
-        for img_path in images[1:]:
-            with Image(filename=img_path) as img:
-                result_clone.composite(img, operator='lighten')
-            result_clone.save(filename=os.path.join(script_dir, f"{i}.png"))
-            i += 1
+    if timelapse:
+        with Image(filename=images[0]) as result:
+            result_clone = result.clone()
+            i = 0
+            for img_path in images[1:]:
+                with Image(filename=img_path) as img:
+                    result_clone.composite(img, operator='lighten')
+                result_clone.save(filename=os.path.join(script_dir, f"{i}.png"))
+                i += 1
+
+    else:
+        with Image(filename=images[0]) as result:
+            for img_path in images[1:]:
+                with Image(filename=img_path) as img:
+                    result.composite(img, operator='lighten')
+            result.save(filename=os.path.join(script_dir, f"result.png"))
+
 
 
 def stack_imgs(fgs, bgs, x1, x2, y1, y2):
@@ -98,8 +107,12 @@ if __name__ == "__main__":
 
                 if not image_paths:
                     raise ValueError("No image selected or the file dialog was closed.")
-                
-                lighten_blend(image_paths)
+
+                match input('1: timelapse \nelse: one stacked img'):
+                    case '1':
+                        lighten_blend(image_paths)
+                    case _:
+                        lighten_blend(image_paths, timelapse=0)
 
             except ValueError as e:
                 print("Error:", e)
