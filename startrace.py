@@ -17,7 +17,8 @@ def select_images(prompt="Select Images"):
         filetypes=[
         ('image files', '.png'),
         ('image files', '.jpg'),
-        ('image files', '.dng')
+        ('image files', '.dng'),
+        ('image files', '.jpeg')
         ]
     )
 
@@ -64,43 +65,39 @@ def lighten_blend(images, timelapse=1):
             result.save(filename=os.path.join(script_dir, f"result.png"))
 
 
-
-def stack_imgs(fgs, bgs, x1, x2, y1, y2):
+def stack_imgs(fgs, bgs, mask):
     if len(bgs) == 0:
         raise ValueError("At least one background must be provided.")
     
     if len(fgs) == 0:
         raise ValueError("At least one foreground must be provided.")
 
+    if not mask:
+        raise ValueError("must provide a pair of masks")
+
+    maskfg = Image(filename=mask)
+    maskbg = Image(filename=mask)
+    maskbg.negate() # invert mask for bg
     script_dir = os.path.dirname(os.path.abspath(__file__))
       
-    for i in range(662, len(bgs)):
-        # Opening the image & 
-        # converting its type to RGBA 
-        img = PI.open(bgs[i]).convert('RGBA')
+    for i in range(0, min(len(bgs), len(fgs))):
+        fg = Image(filename=fgs[i])
+        bg = Image(filename=bgs[i])
 
-        # img = Image(filename=bgs[i]).convert('RGBA')
-        # creating an numpy array out of it 
-        img_arr = np.array(img) 
-          
-        # Turning the pixel values of the selected rectangle to transparent  
-        img_arr[x1 : x2, y1 : y2] = (0, 0, 0, 0) 
+        # apply mask - make white transparent
+        fg.composite(maskfg, operator='multiply')
+        bg.composite(maskbg, operator='multiply')
 
-        # # Modify the occupacy of the rest 
-        # img_arr[x1 : x2, 0 : y2] *= a
-          
-        # Creating an image out of the previously modified array 
-        img = Image.from_array(img_arr)
+        # overlay
+        # fg.composite(bg, operator='darken')
+        fg.composite(bg)
 
-        result = Image(filename=fgs[i])
-        result.composite(img, operator='lighten')
-
-    result.save(filename=os.path.join(script_dir, f"{i}.png"))
+        fg.save(filename=os.path.join(script_dir, f"{i+375}.png"))
 
     
 if __name__ == "__main__":
 
-    match input('1: lighten blend \n2: stack multiple foreground & background'):
+    match input('1: lighten blend \n2: masking'):
         case '1':
             try:
                 image_paths = select_images()
@@ -117,7 +114,10 @@ if __name__ == "__main__":
             except ValueError as e:
                 print("Error:", e)
         case '2':
-            stack_imgs(select_images('Select foregrounds'), select_images('Select backgrounds'), 4380, 6000, 0, 4000)
+            mask = select_images("provide a mask - fg black, bg white")[0]
+            fgs = select_images('Select foregrounds')
+            bgs = select_images('Select backgrounds')
+            stack_imgs(fgs, bgs, mask)
         case _:
             print('meow')
 
