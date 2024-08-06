@@ -68,13 +68,28 @@ def generate_derangements(n):
     backtrack(0, [0] * n, [False] * n)
     return derangements
 
-def split_N_glue(images):
+def generate_cyclic(n):
+    base = list(range(n))
+    cyclic = [base]
+
+    for i in range(n):
+        new = [base[-1]] + base[:-1]
+        cyclic.append(new)
+        base = new
+
+    return cyclic
+
+def split_N_glue(images, deranged=False):
     turtlecat = []
     n = len(images)
     for img in images:
         turtlecat.append(split_image(img, n, False))
 
-    for d in generate_derangements(n):
+    patterns = generate_cyclic(n)
+    if deranged:
+        patterns = generate_derangements(n)
+
+    for d in patterns:
         imgs = [turtlecat[d[i]][i] for i in range(n)]
         glue_images_horizontally(imgs).save(f"{d}.png")
 
