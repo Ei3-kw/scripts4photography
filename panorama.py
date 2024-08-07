@@ -96,7 +96,7 @@ def split_N_glue(images, deranged=False):
 
 if __name__ == '__main__':
     try:
-        match input('1: split panaroma \n2: merge vertically \n3: split n photos into n parts and glue derangely'):
+        match input('1: split panaroma \n2: merge vertically \n3: split n photos into n parts and glue horizontally \n'):
             case '1':
                 results = split_image(Image.open(select_images()[0]), int(input("number of sections:")))
 
@@ -106,7 +106,11 @@ if __name__ == '__main__':
                 images = [Image.open(i) for i in select_images()]
                 glue_images_vertically(images)
             case '3':
-                split_N_glue([Image.open(i) for i in select_images()])
+                match input("1: cyclically \nelse: derangely \n"):
+                    case '1':
+                        split_N_glue([Image.open(i) for i in select_images()])
+                    case _:
+                        split_N_glue([Image.open(i) for i in select_images()], True)
 
     except ValueError as e:
         print("Error:", e)

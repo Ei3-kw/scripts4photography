@@ -97,7 +97,7 @@ def stack_imgs(fgs, bgs, mask):
     
 if __name__ == "__main__":
 
-    match input('1: lighten blend \n2: masking'):
+    match input('1: lighten blend \n2: masking \n'):
         case '1':
             try:
                 image_paths = select_images()
@@ -105,7 +105,7 @@ if __name__ == "__main__":
                 if not image_paths:
                     raise ValueError("No image selected or the file dialog was closed.")
 
-                match input('1: timelapse \nelse: one stacked img'):
+                match input('1: timelapse \nelse: one stacked img \n'):
                     case '1':
                         lighten_blend(image_paths)
                     case _:
