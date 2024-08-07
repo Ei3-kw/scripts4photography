@@ -2,7 +2,7 @@
  
 ## PRE REQ
 - install `wand` python binding (https://docs.wand-py.org/en/latest/index.html)
-- Environment set up
+- environment set up
 	- `export MAGICK_HOME=/opt/homebrew/opt/imagemagick`
 	- `export PATH=$MAGICK_HOME/bin:$PATH`
 
